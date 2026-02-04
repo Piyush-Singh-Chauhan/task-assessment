@@ -1,11 +1,23 @@
 import express from 'express';
 import cors from 'cors';
+import rateLimit from 'express-rate-limit';
+import helmet from 'helmet';
 import AuthRoutes from './routes/authRoute.js';
 import UserRoutes from './routes/userRoute.js';
 import TaskRoutes from './routes/taskRoute.js';
 
 const app = express();
 
+// Security middleware
+app.use(helmet());
+
+// Rate limiting
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // Limit each IP to 100 requests per windowMs
+  message: { message: 'Too many requests from this IP, please try again later.' }
+});
+app.use(limiter);
 
 // Middleware to parse JSON requests
 app.use(cors());

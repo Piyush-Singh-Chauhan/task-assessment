@@ -63,6 +63,7 @@ root/
 │   ├── routes/
 │   ├── middleware/
 │   ├── config/
+│   ├── seeds/
 │   ├── app.js
 │   ├── server.js
 │   └── .env
@@ -103,6 +104,18 @@ npm install
 PORT=8080
 MONGO_URI=mongodb://127.0.0.1:27017/anything_ai
 JWT_SECRET=your_jwt_secret
+```
+
+### Install Dependencies
+
+```bash
+# Backend
+cd backend
+npm install
+
+# Frontend
+cd frontend
+npm install
 ```
 
 ### Run backend
@@ -164,16 +177,48 @@ Authorization: Bearer <JWT_TOKEN>
 
 ## 🧪 API Testing
 
-* APIs tested using **Thunder Client / Postman**
+* APIs tested using **Postman** (included in repository)
 * Authentication required for all dashboard routes
+
+## 📦 Seeding Data
+
+To seed the database with demo users and tasks:
+
+```bash
+npm run seed
+```
+
+## 🔒 Security Features
+
+* Input validation on both frontend and backend
+* Password hashing with bcrypt
+* JWT authentication with proper validation
+* Rate limiting to prevent abuse
+* Helmet.js for HTTP header security
+* SQL injection and XSS prevention
+
+## 🚀 Additional Features
+
+* User profile management
+* Search and filter functionality for tasks
+* Responsive UI with Tailwind CSS
+* Loading, success, and error states
+* Clean and scalable component structure
 
 ---
 
 ## 📌 Demo Credentials (Optional)
 
+After running the seed script:
+
 ```
-Email: test@example.com
-Password: 123456
+Admin User:
+Email: admin@example.com
+Password: password123
+
+Regular Users:
+Email: john@example.com / jane@example.com
+Password: password123
 ```
 
 ---
@@ -190,6 +235,10 @@ To scale this application for production:
 * Use rate limiting and request validation
 * Introduce caching (Redis)
 * Deploy frontend and backend separately using Docker & CI/CD pipelines
+* Add monitoring and logging for better observability
+* Implement automated testing and deployment workflows
+* Optimize database queries and add proper indexing
+* Set up proper backup and disaster recovery procedures
 
 ---
 

@@ -1,6 +1,7 @@
 import User from "../models/User.js";
 import bcrypt from "bcrypt";
 import jwt from 'jsonwebtoken';
+import validator from 'validator';
 
 const genereateToken = (user) => {
     return jwt.sign(
@@ -8,15 +9,34 @@ const genereateToken = (user) => {
         process.env.JWT_SECRET,
         { expiresIn: '1h' }
     );
-}   
+};
+
+// Helper function to validate input
+const validateUserInput = (name, email, password) => {
+    if (!name || typeof name !== 'string' || name.trim().length < 2) {
+        return { isValid: false, message: "Name must be at least 2 characters long" };
+    }
+    
+    if (!email || typeof email !== 'string' || !validator.isEmail(email)) {
+        return { isValid: false, message: "Valid email is required" };
+    }
+    
+    if (!password || typeof password !== 'string' || password.length < 6) {
+        return { isValid: false, message: "Password must be at least 6 characters long" };
+    }
+    
+    return { isValid: true };
+};
 
 export const register = async (req, res) => {
     try {
         const { name, email, password } = req.body; 
         
-        if(!name || !email || !password) {
-            return res.status(400).json({ message: "All fields are required" });
-        };
+        // Validate input
+        const validation = validateUserInput(name, email, password);
+        if (!validation.isValid) {
+            return res.status(400).json({ message: validation.message });
+        }
 
         const existingUser = await User.findOne({ email });
         if(existingUser) {
@@ -26,8 +46,8 @@ export const register = async (req, res) => {
         const hashedPassword = await bcrypt.hash(password, 10);
 
         const user = await User.create({
-            name,
-            email,
+            name: name.trim(),
+            email: email.toLowerCase().trim(),
             password: hashedPassword,
         });
 
@@ -40,6 +60,7 @@ export const register = async (req, res) => {
             },
         });
     } catch (error) {
+        console.error('Registration error:', error);
         res.status(500).json({ message: "SignUP Failed", error: error.message });
     }       
 };
@@ -50,10 +71,13 @@ export const login = async (req, res) => {
 
         if(!email || !password) {
             return res.status(400).json({ message: "All fields are required" });        
-
+        }
+        
+        if (!validator.isEmail(email)) {
+            return res.status(400).json({ message: "Valid email is required" });
         }
 
-        const user = await User.findOne({email})
+        const user = await User.findOne({email: email.toLowerCase().trim()});
         if(!user) {
             return res.status(400).json({message: "Invalid credentials"});
         }
@@ -73,6 +97,7 @@ export const login = async (req, res) => {
         });
 
         } catch (error) {
+        console.error('Login error:', error);
         res.status(500).json({ message: "Login Failed", error: error.message });
     }
-}
+};

@@ -7,7 +7,8 @@ const Sidebar = () => {
   const location = useLocation();
 
   const menuItems = [
-    { name: 'Settings', path: '/settings',  },
+    { name: 'Dashboard', path: '/dashboard' },
+    { name: 'Profile', path: '/profile'  },
   ];
 
   const isActive = (path) => {
@@ -15,7 +16,7 @@ const Sidebar = () => {
   };
 
   return (
-    <div className="bg-gradient-to-b from-teal-500 to-emerald-600 text-white h-screen w-64 fixed left-0 top-0 shadow-2xl">
+    <div className="bg-gradient-to-b from-teal-500 to-emerald-600 text-white h-full w-64 shadow-2xl flex-shrink-0">
       {/* Logo/Header */}
       <div className="p-6 border-b border-teal-400">
         <div className="flex items-center space-x-3">
@@ -52,7 +53,25 @@ const Sidebar = () => {
         </button>
       </div>
 
-     
+      {/* Navigation Menu */}
+      <div className="p-4">
+        <nav className="space-y-2">
+          {menuItems.map((item) => (
+            <Link
+              key={item.path}
+              to={item.path}
+              className={`flex items-center space-x-3 px-4 py-3 rounded-lg transition-all duration-200 ${
+                isActive(item.path)
+                  ? ' bg-opacity-20 text-white shadow-md'
+                  : 'text-teal-100  hover:bg-opacity-10 hover:text-white'
+              }`}
+            >
+              <span className="text-lg">{item.icon}</span>
+              <span className="font-medium">{item.name}</span>
+            </Link>
+          ))}
+        </nav>
+      </div>
 
     </div>
   );

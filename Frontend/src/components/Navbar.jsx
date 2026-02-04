@@ -10,7 +10,7 @@ const Navbar = () => {
   };
 
   return (
-    <nav className="bg-gradient-to-r from-teal-500 to-teal-500 text-white p-4">
+    <nav className="bg-gradient-to-r from-teal-500 to-teal-500 text-white p-4 flex-shrink-0">
       <div className="container mx-auto flex justify-between items-center">
         <div className="text-xl font-bold">
           <Link to="/">Task Manager</Link>

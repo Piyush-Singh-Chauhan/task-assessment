@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { taskAPI } from '../api/api';
 import { useNavigate } from 'react-router-dom';
-import Sidebar from '../components/Sidebar';
 
 const Dashboard = () => {
   const { user, logout } = useAuth();
@@ -10,12 +9,17 @@ const Dashboard = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [showForm, setShowForm] = useState(false);
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+
   const [newTask, setNewTask] = useState({
     title: '',
     description: '',
     status: 'pending'
   });
+  
+  // State for search and filter
+  const [searchTerm, setSearchTerm] = useState('');
+  const [filterStatus, setFilterStatus] = useState('all');
+  const [filteredTasks, setFilteredTasks] = useState([]);
 
   const navigate = useNavigate();
 
@@ -23,9 +27,27 @@ const Dashboard = () => {
     fetchTasks();
   }, []);
 
-  const toggleSidebar = () => {
-    setIsSidebarOpen(!isSidebarOpen);
-  };
+  // Filter tasks based on search term and status
+  useEffect(() => {
+    let filtered = tasks;
+    
+    // Filter by search term
+    if (searchTerm) {
+      filtered = filtered.filter(task => 
+        task.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        task.description.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+    }
+    
+    // Filter by status
+    if (filterStatus !== 'all') {
+      filtered = filtered.filter(task => task.status === filterStatus);
+    }
+    
+    setFilteredTasks(filtered);
+  }, [tasks, searchTerm, filterStatus]);
+
+
 
   const fetchTasks = async () => {
     try {
@@ -126,17 +148,9 @@ const Dashboard = () => {
   const stats = getTaskStats();
 
   return (
-    <div className="flex h-screen bg-gradient-to-br from-blue-50 to-teal-50">
-      {/* Sidebar */}
-      <Sidebar />
-      
-      {/* Main Content */}
-      <div className="flex-1 flex flex-col transition-all duration-300">
-        
-        
-        {/* Main Content Area */}
-        <main className={`flex-1 pb-8 ${isSidebarOpen ? 'ml-64' : 'ml-0'} transition-all duration-300`}>
-          <div className="px-6 py-6">
+    <div className="flex h-full bg-gradient-to-br from-blue-50 to-teal-50">
+      <main className="flex-1 pb-8">
+        <div className="px-6 py-6">
             {/* Stats Cards */}
             <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
               <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
@@ -188,6 +202,39 @@ const Dashboard = () => {
               </div>
             </div>
 
+            {/* Search and Filter Section */}
+            <div className="mb-8 grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="md:col-span-2">
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>
+                  </div>
+                  <input
+                    type="text"
+                    placeholder="Search tasks by title or description..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-colors"
+                  />
+                </div>
+              </div>
+              
+              <div>
+                <select
+                  value={filterStatus}
+                  onChange={(e) => setFilterStatus(e.target.value)}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-colors"
+                >
+                  <option value="all">All Statuses</option>
+                  <option value="pending">Pending</option>
+                  <option value="in-progress">In Progress</option>
+                  <option value="completed">Completed</option>
+                </select>
+              </div>
+            </div>
+            
             {/* Add Task Section */}
             <div className="mb-8">
               <button
@@ -297,20 +344,24 @@ const Dashboard = () => {
               <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
                 <div className="px-6 py-4 border-b border-gray-200">
                   <h3 className="text-lg font-semibold text-gray-900">Your Tasks</h3>
-                  <p className="text-sm text-gray-500 mt-1">{tasks.length} tasks found</p>
+                  <p className="text-sm text-gray-500 mt-1">{filteredTasks.length} tasks found</p>
                 </div>
                 
-                {tasks.length === 0 ? (
+                {filteredTasks.length === 0 ? (
                   <div className="px-6 py-12 text-center">
                     <div className="mx-auto w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mb-4">
                       <span className="text-4xl">📋</span>
                     </div>
-                    <h3 className="text-lg font-medium text-gray-900 mb-2">No tasks yet</h3>
-                    <p className="text-gray-500">Create your first task to get started!</p>
+                    <h3 className="text-lg font-medium text-gray-900 mb-2">
+                      {tasks.length === 0 ? 'No tasks yet' : 'No tasks match your filters'}
+                    </h3>
+                    <p className="text-gray-500">
+                      {tasks.length === 0 ? 'Create your first task to get started!' : 'Try adjusting your search or filter criteria.'}
+                    </p>
                   </div>
                 ) : (
                   <ul className="divide-y divide-gray-200">
-                    {tasks.map((task) => (
+                    {filteredTasks.map((task) => (
                       <li key={task._id} className="px-6 py-5 hover:bg-gray-50 transition-colors">
                         <div className="flex items-start justify-between">
                           <div className="flex-1 min-w-0">
@@ -372,7 +423,7 @@ const Dashboard = () => {
           </div>
         </main>
       </div>
-    </div>
+    
   );
 };
 
