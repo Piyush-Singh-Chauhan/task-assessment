@@ -20,6 +20,7 @@ The primary focus is on **frontend development**, with a **minimal backend** to 
 
 ### 👤 User Profile
 - Fetch logged-in user profile
+- Update User profile
 
 ### 📋 Dashboard (Tasks CRUD)
 - Create, Read, Update, Delete tasks
@@ -157,8 +158,8 @@ http://localhost:5173
 
 ### Profile
 
-* `GET /api/v1/me`
-* `PUT /api/v1/me`
+* `GET /api/v1/user/profile`
+* `PUT /api/v1/user/profile`
 
 ### Tasks
 
